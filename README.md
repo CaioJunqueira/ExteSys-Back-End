@@ -1,5 +1,5 @@
 # ExteSys Back-End
-## Siga as intruções :feet: 
+## Siga as intruções
 ### Passo 1: 
 
 - Antes de começar a contribuir para o projeto, certifique-se de ter os seguintes pré-requisitos instalados no seu sistema:
