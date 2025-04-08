@@ -36,7 +36,14 @@ npm run dev
 
 ### Como contribuir 
 
-- Faça uma branch com o nome da feature que você está desenvolvendo , e faça os commits nela.
+- Faça uma branch com o nome da feature que você está desenvolvendo, e faça os commits nela.
+
+```
+git checkout -b feature/nome-da-feature
+git commit -m "Sua mensagem de confirmação aqui"
+git push
+```
+- Criar um Pull Request (PR). Agora vá até o GitHub e clique em "Compare & pull request" para fazer o merge da feature com a main.
 - Posteriormente suas alterações serão revisadas e "mergeadas" com a main.
 
 ```
