@@ -28,7 +28,7 @@ npm install
 - Depois de instalar as dependências, você pode iniciar a aplicação Node.js:
 
 ```
-npm run  dev
+npm run dev
 ```
 
 ### Agora é só codar :octocat:
