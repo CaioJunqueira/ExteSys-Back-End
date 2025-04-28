@@ -13,4 +13,4 @@ const connectDB = async () => {
   }
 };
 
-export { connectDB }; // Usando export para ES6
+export { connectDB };

@@ -1,33 +1,30 @@
 import User from "../models/userModel.js";
 import { hashPassword } from "../../helpers/encryption.js";
+import AuthService from "../../services/Auth.js";
 
 class userController {
   // Controller para listar todos os usuários
   static listUsers = async (req, res) => {
     try {
-      const users = await User.find(); // Busca todos os usuários
+      const users = await User.find(); 
       res.status(200).json(users);
     } catch (error) {
-      res
-        .status(500)
-        .json({ message: "Erro ao listar usuários", error: error.message });
+      res.status(500).json({ message: "Erro ao listar usuários", error: error.message });
     }
   };
 
-  // Controller para listar um usuário pelo ID
+  // Controller para listar um usuário pelo user_id (não pelo _id do Mongo)
   static listOneUser = async (req, res) => {
     const { id } = req.params;
 
     try {
-      const user = await User.findById(id); // Busca o usuário pelo ID
+      const user = await User.findOne({ user_id: id });
       if (!user) {
         return res.status(404).json({ message: "Usuário não encontrado" });
       }
       res.status(200).json(user);
     } catch (error) {
-      res
-        .status(500)
-        .json({ message: "Erro ao buscar usuário", error: error.message });
+      res.status(500).json({ message: "Erro ao buscar usuário", error: error.message });
     }
   };
 
@@ -36,76 +33,72 @@ class userController {
     const { name, email, password, role } = req.body;
 
     try {
-      const existingUser = await User.findOne({ email }); // Verifica se o email já existe
+      const existingUser = await User.findOne({ email });
       if (existingUser) {
         return res.status(400).json({ message: "Email já cadastrado" });
       }
 
-      const hashedPassword = await hashPassword(password); // Criptografa a senha
+      const hashedPassword = await hashPassword(password);
 
       const newUser = new User({ name, email, password: hashedPassword, role });
-      await newUser.save(); // Salva o usuário no banco de dados
+      await newUser.save();
       res.status(201).json(newUser);
     } catch (error) {
-      res
-        .status(500)
-        .json({ message: "Erro ao criar usuário", error: error.message });
+      res.status(500).json({ message: "Erro ao criar usuário", error: error.message });
     }
   };
 
-// Controller para deletar um usuário pelo user_id (UUID)
-static deleteUser = async (req, res) => {
-  const { id } = req.params;
+  // Controller para deletar um usuário pelo user_id
+  static deleteUser = async (req, res) => {
+    const { id } = req.params;
 
-  try {
-    const user = await User.findOneAndDelete({ user_id: id });
-    if (!user) {
-      return res.status(404).json({ message: "Usuário não encontrado" });
+    try {
+      const user = await User.findOneAndDelete({ user_id: id });
+      if (!user) {
+        return res.status(404).json({ message: "Usuário não encontrado" });
+      }
+      res.status(200).json({ message: "Usuário deletado com sucesso" });
+    } catch (error) {
+      res.status(500).json({ message: "Erro ao deletar usuário", error: error.message });
     }
-    res.status(200).json({ message: "Usuário deletado com sucesso" });
-  } catch (error) {
-    res.status(500).json({ message: "Erro ao deletar usuário", error: error.message });
-  }
-};
+  };
 
-
-  // Controller para atualizar um usuário pelo ID
+  // Controller para atualizar um usuário pelo user_id
   static updateUser = async (req, res) => {
     const { id } = req.params;
     const { name, email, password, role } = req.body;
 
     try {
-      const user = await User.findByIdAndUpdate(
-        id,
-        { name, email, password, role },
-        { new: true }
-      );
+      const updateData = { name, email, role };
+
+      if (password) {
+        updateData.password = await hashPassword(password);
+      }
+
+      const user = await User.findOneAndUpdate({ user_id: id }, updateData, { new: true });
       if (!user) {
         return res.status(404).json({ message: "Usuário não encontrado" });
       }
       res.status(200).json(user);
     } catch (error) {
-      res
-        .status(500)
-        .json({ message: "Erro ao atualizar usuário", error: error.message });
+      res.status(500).json({ message: "Erro ao atualizar usuário", error: error.message });
     }
   };
 
-  // Controller para login do usuário (autenticação)
+  // Controller para login usando o AuthService
   static loginUser = async (req, res) => {
     const { email, password } = req.body;
 
     try {
-      const user = await User.findOne({ email }); // Busca usuário pelo email
-      if (!user || user.password !== password) {
-        // Verifica se a senha é válida
-        return res.status(401).json({ message: "Email ou senha inválidos" });
-      }
-      res.status(200).json({ message: "Login bem-sucedido", userId: user._id });
+      const result = await AuthService.login({ email, password });
+
+      res.status(200).json({
+        message: "Login bem-sucedido",
+        accessToken: result.accessToken,
+        user: result.userDb,
+      });
     } catch (error) {
-      res
-        .status(500)
-        .json({ message: "Erro ao fazer login", error: error.message });
+      res.status(401).json({ message: error.message });
     }
   };
 
@@ -114,15 +107,13 @@ static deleteUser = async (req, res) => {
     const { email } = req.body;
 
     try {
-      const user = await User.findOne({ email }); // Busca usuário pelo email
+      const user = await User.findOne({ email });
       if (!user) {
         return res.status(404).json({ message: "Usuário não encontrado" });
       }
       res.status(200).json(user);
     } catch (error) {
-      res
-        .status(500)
-        .json({ message: "Erro ao buscar usuário", error: error.message });
+      res.status(500).json({ message: "Erro ao buscar usuário", error: error.message });
     }
   };
 }
