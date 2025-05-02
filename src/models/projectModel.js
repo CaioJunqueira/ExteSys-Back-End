@@ -47,8 +47,20 @@ const projectSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["proposta", "disponível", "finalizado"],
+      enum: ["proposta", "disponível", "finalizado", "rejeitado"],
       required: true,
+    },
+    creatorName: {
+      type: String,
+      required: false,
+    },
+    creatorEmail: {
+      type: String,
+      required: false,
+    },
+    rejectionReason: {
+      type: String,
+      required: false,
     },
   },
   {

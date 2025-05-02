@@ -10,5 +10,7 @@ router
   .delete("/projects/removeOne/:id", projectController.deleteProject)
   .put("/projects/:id", projectController.updateProject)
   .patch("/projects/:id", projectController.updateProject)
+  .patch("/projects/:id/approve", projectController.approveProject)
+  .patch("/projects/:id/reject", projectController.rejectProject)
 
 export default router;
