@@ -12,5 +12,6 @@ router
   .patch("/projects/:id", projectController.updateProject)
   .patch("/projects/:id/approve", projectController.approveProject)
   .patch("/projects/:id/reject", projectController.rejectProject)
+  .post("/projects/:id/interest", projectController.expressInterest);
 
 export default router;

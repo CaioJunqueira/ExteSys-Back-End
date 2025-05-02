@@ -25,6 +25,10 @@ const projectSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    responsibleTeacherEmail: {
+      type: String,
+      required: false,
+    },
     periodicity: {
       type: String,
       required: true,

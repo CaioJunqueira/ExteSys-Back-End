@@ -177,6 +177,45 @@ class projectController {
         .json({ message: "Erro ao reprovar projeto", error: error.message });
     }
   };
+
+  static expressInterest = async (req, res) => {
+    const { id } = req.params;
+    const { name, email } = req.body;
+    try {
+      const project = await Project.findOne({ project_id: id });
+      if (!project) {
+        return res.status(404).json({ message: "Projeto não encontrado" });
+      }
+
+      // envia e‑mail ao professor
+      await transporter.sendMail({
+        from: process.env.EMAIL_USER,
+        to: project.responsibleTeacherEmail,
+        subject: `Interesse em "${project.project_theme}"`,
+        html: `
+          <p>Olá <strong>${project.responsible_teacher}</strong>,</p>
+          <p>O aluno <strong>${name}</strong> demonstrou interesse no projeto <em>"${project.project_theme}"</em>.</p>
+          <p><strong>E‑mail do aluno:</strong> ${email}</p>
+          <br>
+          <p>Entre em contato com ele para prosseguir.</p>
+        `,
+      });
+
+      res
+        .status(200)
+        .json({
+          message: "Interesse registrado e e‑mail enviado ao professor.",
+        });
+    } catch (error) {
+      console.error("Erro ao registrar interesse:", error);
+      res
+        .status(500)
+        .json({
+          message: "Erro interno ao processar interesse",
+          error: error.message,
+        });
+    }
+  };
 }
 
 export default projectController;
