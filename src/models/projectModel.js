@@ -66,6 +66,10 @@ const projectSchema = new mongoose.Schema(
       type: String,
       required: false,
     },
+    description: {
+      type: String,
+      required: true,
+    },
   },
   {
     timestamps: true,
