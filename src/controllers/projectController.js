@@ -99,6 +99,17 @@ class projectController {
 
   static approveProject = async (req, res) => {
     const { id } = req.params;
+    const {
+      project_theme,
+      project_area,
+      target_audience,
+      responsible_teacher,
+      periodicity,
+      available_vacancies,
+      workload,
+      description,
+      responsibleTeacherEmail,
+    } = req.body;
 
     try {
       const project = await Project.findOne({ project_id: id });
@@ -107,28 +118,47 @@ class projectController {
         return res.status(404).json({ message: "Projeto não encontrado" });
       }
 
-      // Atualiza status para "disponível"
+      // Atualiza os dados recebidos + status
+      project.project_theme = project_theme || project.project_theme;
+      project.project_area = project_area || project.project_area;
+      project.target_audience = target_audience || project.target_audience;
+      project.responsible_teacher =
+        responsible_teacher || project.responsible_teacher;
+      project.periodicity = periodicity || project.periodicity;
+      project.available_vacancies =
+        available_vacancies ?? project.available_vacancies;
+      project.workload = workload ?? project.workload;
+      project.description = description || project.description;
+      project.responsibleTeacherEmail =
+        responsibleTeacherEmail || project.responsibleTeacherEmail;
       project.status = "disponível";
+
       await project.save();
 
       // Envia e-mail de aprovação
-      const { creatorName, creatorEmail, project_theme } = project;
+      const {
+        creatorName,
+        creatorEmail,
+        project_theme: theme,
+        responsible_teacher: teacher,
+        responsibleTeacherEmail: teacherEmail,
+      } = project;
 
       await transporter.sendMail({
         from: process.env.EMAIL_USER,
         to: creatorEmail,
-        subject: `Projeto "${project_theme}" aprovado`,
+        subject: `Projeto "${theme}" aprovado`,
         html: `
-          <p>Olá <strong>${creatorName}</strong>,</p>
-          <p>Seu projeto <strong>"${project_theme}"</strong> foi <span style="color:green;"><strong>aprovado</strong></span> e agora está disponível para todos os alunos.</p>
-          <br>
-          <p>Parabéns! Em breve os alunos poderão se inscrever.</p>
-        `,
+        <p>Olá <strong>${creatorName}</strong>,</p>
+        <p>Sua proposta de projeto foi <span style="color:green;"><strong>APROVADA</strong></span>, com o novo tema sendo <strong>"${theme}"</strong>, e o professor responsável será ${teacher}. O projeto e suas novas informações agora estão disponíveis na plataforma. Para mais dúvidas, contate o e-mail ${teacherEmail}.</p>
+        <br>
+      `,
       });
 
-      res
-        .status(200)
-        .json({ message: "Projeto aprovado e e-mail enviado com sucesso." });
+      res.status(200).json({
+        message:
+          "Projeto aprovado, dados atualizados e e-mail enviado com sucesso.",
+      });
     } catch (error) {
       console.error("Erro ao aprovar projeto:", error);
       res
@@ -157,10 +187,10 @@ class projectController {
       await transporter.sendMail({
         from: process.env.EMAIL_USER,
         to: creatorEmail,
-        subject: `Projeto "${project_theme}" reprovado`,
+        subject: `Proposta de projeto reprovada`,
         html: `
         <p>Olá <strong>${creatorName}</strong>,</p>
-        <p>Seu projeto <strong>"${project_theme}"</strong> foi <span style="color:red;"><strong>reprovado</strong></span>.</p>
+        <p>Sua proposta de projeto foi <span style="color:red;"><strong>REPROVADA</strong></span>.</p>
         <p><strong>Motivo:</strong> ${rejectionReason}</p>
         <br>
         <p>Se tiver dúvidas, entre em contato com a coordenação.</p>
@@ -201,19 +231,15 @@ class projectController {
         `,
       });
 
-      res
-        .status(200)
-        .json({
-          message: "Interesse registrado e e‑mail enviado ao professor.",
-        });
+      res.status(200).json({
+        message: "Interesse registrado e e‑mail enviado ao professor.",
+      });
     } catch (error) {
       console.error("Erro ao registrar interesse:", error);
-      res
-        .status(500)
-        .json({
-          message: "Erro interno ao processar interesse",
-          error: error.message,
-        });
+      res.status(500).json({
+        message: "Erro interno ao processar interesse",
+        error: error.message,
+      });
     }
   };
 }

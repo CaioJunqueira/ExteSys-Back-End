@@ -11,19 +11,19 @@ const projectSchema = new mongoose.Schema(
     },
     project_theme: {
       type: String,
-      required: true,
+      required: false,
     },
     project_area: {
       type: String,
-      required: true,
+      required: false,
     },
     target_audience: {
       type: String,
-      required: true,
+      required: false,
     },
     responsible_teacher: {
       type: String,
-      required: true,
+      required: false,
     },
     responsibleTeacherEmail: {
       type: String,
@@ -31,15 +31,15 @@ const projectSchema = new mongoose.Schema(
     },
     periodicity: {
       type: String,
-      required: true,
+      required: false,
     },
     available_vacancies: {
       type: Number,
-      required: true,
+      required: false,
     },
     workload: {
       type: Number,
-      required: true,
+      required: false,
     },
     createdBy: {
       type: String,
