@@ -4,12 +4,25 @@ import routes from "./routes/index.js";
 
 const app = express();
 
-// Middlewares globais
-app.use(cors());
-app.use(express.json()); // garante que o app entenda JSON no corpo das requisições
-app.use(express.urlencoded({ extended: true })); // útil para formulários codificados
+const allowedOrigins = [
+  "http://localhost:5000",
+  "https://extesys-front-end.vercel.app",
+];
 
-// Rotas
+app.use(cors({
+  origin: function(origin, callback) {
+    if (!origin) return callback(null, true); // permite ferramentas como Postman
+    if (allowedOrigins.indexOf(origin) === -1) {
+      return callback(new Error("CORS policy: Origin não permitido"), false);
+    }
+    return callback(null, true);
+  },
+  credentials: true, // se usar cookies/autenticação
+}));
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 routes(app);
 
 export default app;
