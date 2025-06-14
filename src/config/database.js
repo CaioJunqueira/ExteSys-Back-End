@@ -8,6 +8,8 @@ const connectDB = async () => {
       dbName: 'extesys'
     });
     console.log("✅ Conectado ao MongoDB");
+    console.log("🔍 Mongo URI:", process.env.MONGO_URI);
+
   } catch (err) {
     console.error("❌ Erro ao conectar no MongoDB:", err.message);
     process.exit(1);
